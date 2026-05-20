@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>母校回忆录</title>
+<script>
+// ===================== 动态加载 CDN（国内 + 国外双源） =====================
+window.__CDN_LOADED = { tailwind: false, supabase: false };
+
+function loadScript(name, urls, callback) {
+  var idx = 0;
+  function tryNext() {
+    if (idx >= urls.length) {
+      // All failed — show fallback page
+      if (name === 'tailwind') {
+        // Tailwind 失败，用内联样式继续
+        callback(false);
+      } else {
+        callback(false);
+      }
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = urls[idx];
+    s.onload = function() {
+      window.__CDN_LOADED[name] = true;
+      callback(true);
+    };
+    s.onerror = function() { idx++; tryNext(); };
+    document.head.appendChild(s);
+  }
+  tryNext();
+}
+
+// 加载 Tailwind（国内源优先）
+loadScript('tailwind', [
+  'https://cdn.bootcdn.net/ajax/libs/tailwindcss/3.4.4/tailwindcss.min.js',
+  'https://cdn.tailwindcss.com',
+  'https://unpkg.com/tailwindcss-cdn@3.4.4/tailwindcss.js'
+], function(ok) {
+  if (ok && typeof tailwind !== 'undefined') {
+    tailwind.config = {
+      theme: { extend: { colors: { apple: { bg:'#f5f5f7', card:'#ffffff', text:'#1d1d1f', gray:'#86868b', blue:'#0071e3', 'blue-hover':'#0077ed' }}}}
+    };
+  }
+  // 加载 Supabase（国内源优先）
+  loadScript('supabase', [
+    'https://registry.npmmirror.com/@supabase/supabase-js/2.39.7/files/dist/umd/supabase.js',
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
+    'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+  ], function(ok2) {
+    if (!ok2) {
+      document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f5f7;padding:24px;font-family:sans-serif"><div style="background:#fff;border-radius:20px;padding:48px;max-width:520px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06)"><div style="font-size:48px;margin-bottom:16px">🔌</div><h1 style="font-size:22px;color:#1d1d1f;margin-bottom:8px">网络连接失败</h1><p style="color:#86868b;font-size:15px;line-height:1.6">SDK 加载失败，请检查网络连接后刷新页面。</p></div></div>';
+      return;
+    }
+    // 两个 CDN 都加载完毕，启动应用
+    document.dispatchEvent(new Event('sdk-ready'));
+  });
+});
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+      'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+    background: #f5f5f7; color: #1d1d1f;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection { background: #0071e3; color: #fff; }
+  .card-hover { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .animate-fade-in { animation: fadeIn 0.35s ease-out; }
+  .animate-fade-in-up { animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+  .animate-scale-in { animation: scaleIn 0.2s ease-out; }
+  .modal-backdrop { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 3px; }
+  @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
+  .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%); background-size: 200px 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+  .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; }
+  .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<!-- ===== CONFIG ===== -->
+<script>
+var SUPABASE_URL = 'https://wfckmrueybhyfexsmlvc.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_Ml3k0e0Oy-GapNrh1l_BxA_wxOKAurX';
+
+if (SUPABASE_URL.indexOf('YOUR-PROJECT') >= 0) {
+  document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f5f7;padding:24px;font-family:sans-serif"><div style="background:#fff;border-radius:20px;padding:48px;max-width:520px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06)"><div style="font-size:48px;margin-bottom:16px">⚙️</div><h1 style="font-size:22px;color:#1d1d1f;margin-bottom:8px">需要配置 Supabase</h1><p style="color:#86868b;font-size:15px;line-height:1.6">请打开此文件，将 SUPABASE_URL 和 SUPABASE_ANON_KEY 替换为你的 Supabase 项目信息</p></div></div>';
+  throw new Error('请先配置 Supabase');
+}
+</script>
+
+<div id="app"></div>
+
+<script>
+// ===================== 等待 SDK 就绪后启动 =====================
+document.addEventListener('sdk-ready', function() {
+  initApp().catch(function(e) {
+    console.error(e);
+    var app = document.getElementById('app');
+    if (app && !app.innerHTML.trim()) {
+      app.innerHTML = '<div style="text-align:center;padding:80px 24px;font-family:sans-serif"><div style="font-size:48px;margin-bottom:16px">⚠️</div><h2 style="color:#1d1d1f">初始化失败</h2><p style="color:#86868b;margin-top:8px">' + e.message + '</p><button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;background:#0071e3;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px">刷新页面</button></div>';
+    }
+  });
+});
+
+function initApp() {
+  // ===================== Supabase Client =====================
+  var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ===================== State =====================
+  var isAdmin = false;
+  var memories = [];
+  var currentPage = 1;
+  var currentSort = 'latest';
+  var totalCount = 0;
+  var PAGE_SIZE = 12;
+  var searchQuery = '';
+  var userFingerprint = '';
+  var activeDetailId = null;
+  var detailComments = [];
+  var detailMemory = null;
+
+  // ===================== Utils =====================
+  function $(s) { return document.querySelector(s); }
+
+  function getFP() {
+    var fp = localStorage.getItem('_user_fp');
+    if (!fp) { fp = 'fp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10); localStorage.setItem('_user_fp', fp); }
+    return fp;
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function formatDate(s) {
+    if (!s) return '';
+    var d = new Date(s);
+    var now = new Date();
+    var diff = now - d;
+    if (diff < 60000) return '刚刚';
+    if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
+    if (diff < 604800000) return Math.floor(diff / 86400000) + ' 天前';
+    var pad = function(n) { return String(n).padStart(2, '0'); };
+    return d.getFullYear() + '/' + pad(d.getMonth()+1) + '/' + pad(d.getDate());
+  }
+
+  function showToast(msg, type) {
+    type = type || 'success';
+    var existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    var t = document.createElement('div');
+    t.className = 'toast fixed top-6 right-6 z-[200] px-5 py-3 rounded-2xl text-white text-sm font-medium shadow-lg';
+    t.style.cssText = 'animation:fadeIn 0.3s ease-out;background:' + (type === 'success' ? '#34c759' : type === 'error' ? '#ff3b30' : '#0071e3');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity 0.2s'; setTimeout(function() { t.remove(); }, 200); }, 2200);
+  }
+
+  // ===================== Data =====================
+  function fetchMemories(page, sort, search) {
+    page = page || 1;
+    sort = sort || 'latest';
+    search = search || '';
+
+    var query = supabase.from('memories').select('*', { count: 'exact' });
+
+    if (search) {
+      query = query.or('author.ilike.%' + search + '%,content.ilike.%' + search + '%');
+    }
+
+    if (sort === 'oldest') query = query.order('created_at', { ascending: true });
+    else if (sort === 'most_liked') query = query.order('like_count', { ascending: false });
+    else if (sort === 'most_commented') query = query.order('comment_count', { ascending: false });
+    else query = query.order('created_at', { ascending: false });
+
+    var from = (page - 1) * PAGE_SIZE;
+    var to = from + PAGE_SIZE - 1;
+    return query.range(from, to).then(function(r) {
+      if (r.error) throw r.error;
+      return { data: r.data || [], count: r.count || 0 };
+    });
+  }
+
+  function createMemory(author, content, mediaType, mediaData) {
+    return supabase.from('memories').insert([{
+      author: author, content: content, media_type: mediaType, media_data: mediaData,
+      like_count: 0, comment_count: 0
+    }]).select().then(function(r) {
+      if (r.error) throw r.error;
+      return r.data[0];
+    });
+  }
+
+  function updateMemoryById(id, updates) {
+    return supabase.from('memories').update(updates).eq('id', id).select().then(function(r) {
+      if (r.error) throw r.error;
+      return r.data[0];
+    });
+  }
+
+  function deleteMemoryById(id) {
+    return supabase.from('memories').delete().eq('id', id).then(function(r) {
+      if (r.error) throw r.error;
+    });
+  }
+
+  function fetchComments(memoryId) {
+    return supabase.from('comments').select('*').eq('memory_id', memoryId).order('created_at', { ascending: true }).then(function(r) {
+      if (r.error) throw r.error;
+      return r.data || [];
+    });
+  }
+
+  function addComment(memoryId, author, content) {
+    return supabase.from('comments').insert([{ memory_id: memoryId, author: author, content: content }]).select().then(function(r) {
+      if (r.error) throw r.error;
+      return supabase.rpc('increment_comment_count', { row_id: memoryId }).then(function() { return r.data[0]; });
+    });
+  }
+
+  function deleteCommentById(id, memoryId) {
+    return supabase.from('comments').delete().eq('id', id).then(function(r) {
+      if (r.error) throw r.error;
+      return supabase.rpc('decrement_comment_count', { row_id: memoryId });
+    });
+  }
+
+  function toggleLike(memoryId) {
+    var fp = userFingerprint;
+    return supabase.from('likes').select('id').eq('memory_id', memoryId).eq('user_fingerprint', fp).maybeSingle().then(function(r) {
+      if (r.data) {
+        return supabase.from('likes').delete().eq('id', r.data.id).then(function() {
+          return supabase.rpc('decrement_like_count', { row_id: memoryId }).then(function() { return false; });
+        });
+      } else {
+        return supabase.from('likes').insert([{ memory_id: memoryId, user_fingerprint: fp }]).then(function() {
+          return supabase.rpc('increment_like_count', { row_id: memoryId }).then(function() { return true; });
+        });
+      }
+    });
+  }
+
+  function getUserLikes(memoryIds) {
+    return supabase.from('likes').select('memory_id').eq('user_fingerprint', userFingerprint).in('memory_id', memoryIds).then(function(r) {
+      return (r.data || []).map(function(l) { return l.memory_id; });
+    });
+  }
+
+  // ===================== Render =====================
+  function loadFeed(page, sort, search) {
+    page = page || currentPage;
+    sort = sort || currentSort;
+    if (search === undefined) search = searchQuery;
+    else searchQuery = search;
+
+    currentPage = page;
+    currentSort = sort;
+
+    showLoading();
+    return fetchMemories(page, sort, search).then(function(result) {
+      memories = result.data;
+      totalCount = result.count;
+      if (memories.length > 0) {
+        return getUserLikes(memories.map(function(m) { return m.id; })).then(function(likedIds) {
+          memories = memories.map(function(m) { m._liked = likedIds.indexOf(m.id) >= 0; return m; });
+          renderFeed();
+        });
+      } else {
+        renderFeed();
+      }
+    }).catch(function(e) {
+      showToast('加载失败: ' + e.message, 'error');
+    });
+  }
+
+  function showLoading() {
+    var c = $('#feed-container');
+    if (!c) return;
+    var html = '<div class="grid gap-5 sm:grid-cols-2">';
+    for (var i = 0; i < 6; i++) {
+      html += '<div class="bg-white rounded-2xl p-5"><div class="skeleton h-4 w-24 mb-3"></div><div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-40 w-full mt-3"></div></div>';
+    }
+    html += '</div>';
+    c.innerHTML = html;
+  }
+
+  function renderFeed() {
+    var c = $('#feed-container');
+    if (!c) return;
+
+    if (memories.length === 0) {
+      c.innerHTML = '<div class="text-center py-20"><div class="text-5xl mb-4">📝</div><p class="text-gray-400 text-lg">' + (searchQuery ? '没有找到匹配的回忆' : '还没有人分享回忆，来做第一个吧') + '</p></div>';
+      renderPagination();
+      return;
+    }
+
+    var html = '<div class="grid gap-5 sm:grid-cols-2">';
+    for (var i = 0; i < memories.length; i++) {
+      html += renderCard(memories[i]);
+    }
+    html += '</div>';
+    c.innerHTML = html;
+    renderPagination();
+  }
+
+  function renderCard(m) {
+    var mediaHtml = '';
+    if (m.media_type === 'video') {
+      mediaHtml = '<div class="video-container mt-3"><iframe src="' + escapeHtml(m.media_data) + '" allowfullscreen></iframe></div>';
+    } else if (m.media_data) {
+      mediaHtml = '<img src="' + m.media_data + '" alt="" class="rounded-xl w-full max-h-56 object-cover mt-3 card-hover" style="cursor:pointer" onclick="event.stopPropagation();window.__openDetail(' + m.id + ')">';
+    }
+
+    var likeText = m._liked ? ('♥ ' + (m.like_count || 0)) : ('♡ ' + (m.like_count || 0));
+    var likeColor = m._liked ? 'color:#ff3b30' : 'color:#86868b';
+
+    var adminBtns = '';
+    if (isAdmin) {
+      adminBtns = '<button onclick="event.stopPropagation();window.__handleEdit(' + m.id + ')" class="text-[#0071e3] hover:underline ml-auto text-xs">编辑</button><button onclick="event.stopPropagation();window.__handleDelete(' + m.id + ')" class="text-[#ff3b30] hover:underline text-xs ml-2">删除</button>';
+    }
+
+    return '<div class="animate-fade-in bg-white rounded-2xl p-5 card-hover cursor-pointer border border-gray-100/50" onclick="window.__openDetail(' + m.id + ')">' +
+      '<div class="flex items-center gap-2.5 mb-3">' +
+        '<div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0" style="background:linear-gradient(135deg,#0071e3,#5856d6)">' + escapeHtml(m.author).charAt(0) + '</div>' +
+        '<div class="min-w-0">' +
+          '<p class="font-medium text-gray-800 text-sm truncate">' + escapeHtml(m.author) + '</p>' +
+          '<p class="text-xs text-gray-400">' + formatDate(m.created_at) + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<p class="text-gray-700 text-sm leading-relaxed line-clamp-4 whitespace-pre-wrap">' + escapeHtml(m.content) + '</p>' +
+      mediaHtml +
+      '<div class="flex items-center gap-5 mt-3 pt-3 border-t border-gray-100 text-xs">' +
+        '<button onclick="event.stopPropagation();window.__handleLike(' + m.id + ')" style="' + likeColor + '" class="hover:scale-110 transition-transform font-medium text-xs">' + likeText + '</button>' +
+        '<span class="text-gray-400">💬 ' + (m.comment_count || 0) + '</span>' +
+        adminBtns +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderPagination() {
+    var c = $('#pagination');
+    if (!c) return;
+    var totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+    if (totalPages <= 1) { c.innerHTML = ''; return; }
+    var html = '';
+    for (var i = 1; i <= totalPages; i++) {
+      html += '<button onclick="window.__goToPage(' + i + ')" class="w-9 h-9 rounded-lg text-sm font-medium transition ' + (i === currentPage ? 'bg-[#0071e3] text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200') + '">' + i + '</button>';
+    }
+    c.innerHTML = '<div class="flex justify-center items-center gap-1.5 mt-8">' + html + '</div><p class="text-center text-gray-400 text-xs mt-3">共 ' + totalCount + ' 条回忆</p>';
+  }
+
+  // ===================== Detail Modal =====================
+  function openDetail(id) {
+    var m = null;
+    for (var i = 0; i < memories.length; i++) { if (memories[i].id === id) { m = memories[i]; break; } }
+    if (!m) return;
+    activeDetailId = id;
+    detailMemory = m;
+    return fetchComments(id).then(function(comments) {
+      detailComments = comments;
+      renderDetail();
+      document.body.style.overflow = 'hidden';
+    });
+  }
+
+  function closeDetail() {
+    activeDetailId = null;
+    detailMemory = null;
+    detailComments = [];
+    var modal = $('#detail-modal');
+    if (modal) modal.remove();
+    document.body.style.overflow = '';
+  }
+
+  function renderDetail() {
+    var existing = $('#detail-modal');
+    if (existing) existing.remove();
+
+    var m = detailMemory;
+    var mediaHtml = '';
+    if (m.media_type === 'video') {
+      mediaHtml = '<div class="video-container"><iframe src="' + escapeHtml(m.media_data) + '" allowfullscreen></iframe></div>';
+    } else if (m.media_data) {
+      mediaHtml = '<img src="' + m.media_data + '" alt="" class="w-full rounded-2xl cursor-pointer card-hover" onclick="window.__zoomMedia()">';
+    }
+
+    var likeText = m._liked ? ('♥ ' + (m.like_count || 0)) : ('♡ ' + (m.like_count || 0));
+    var likeColor = m._liked ? 'color:#ff3b30' : 'color:#86868b';
+
+    var adminHeaderBtns = '';
+    if (isAdmin) {
+      adminHeaderBtns = '<div class="ml-auto flex gap-2"><button onclick="window.__handleEditInDetail(' + m.id + ')" class="text-sm text-[#0071e3] hover:underline">编辑</button><button onclick="window.__handleDeleteInDetail(' + m.id + ')" class="text-sm text-[#ff3b30] hover:underline">删除</button></div>';
+    }
+
+    var commentsHtml = '';
+    for (var i = 0; i < detailComments.length; i++) {
+      var c = detailComments[i];
+      var delBtn = '';
+      if (isAdmin) { delBtn = '<button onclick="window.__handleDeleteComment(' + c.id + ',' + m.id + ')" class="text-xs text-[#ff3b30] ml-auto hover:underline">删除</button>'; }
+      commentsHtml += '<div class="flex gap-2.5 py-3 animate-fade-in">' +
+        '<div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0" style="background:linear-gradient(135deg,#5856d6,#af52de)">' + escapeHtml(c.author).charAt(0) + '</div>' +
+        '<div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="text-sm font-medium text-gray-800">' + escapeHtml(c.author) + '</span><span class="text-xs text-gray-400">' + formatDate(c.created_at) + '</span>' + delBtn + '</div>' +
+        '<p class="text-sm text-gray-700 mt-0.5">' + escapeHtml(c.content) + '</p></div></div>';
+    }
+
+    var html = '<div id="detail-modal" class="fixed inset-0 z-50 flex items-start justify-center modal-backdrop" style="background:rgba(0,0,0,0.4)" onclick="window.__closeDetail()">' +
+      '<div class="w-full max-w-2xl max-h-screen overflow-y-auto mx-4 my-8 bg-white rounded-3xl shadow-2xl animate-scale-in" onclick="event.stopPropagation()" style="max-height:calc(100vh - 64px)">' +
+        '<button onclick="window.__closeDetail()" class="sticky top-0 float-right m-4 w-8 h-8 rounded-full bg-gray-200/80 hover:bg-gray-300 flex items-center justify-center text-gray-400 hover:text-gray-700 transition z-10 text-lg">✕</button>' +
+        '<div class="px-6 pb-6 pt-2">' +
+          '<div class="flex items-center gap-3 mb-4">' +
+            '<div class="w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold text-white shrink-0" style="background:linear-gradient(135deg,#0071e3,#5856d6)">' + escapeHtml(m.author).charAt(0) + '</div>' +
+            '<div><p class="font-semibold text-gray-800">' + escapeHtml(m.author) + '</p><p class="text-xs text-gray-400">' + formatDate(m.created_at) + '</p></div>' +
+            adminHeaderBtns +
+          '</div>' +
+          '<p class="text-gray-700 text-base leading-relaxed whitespace-pre-wrap mb-4">' + escapeHtml(m.content) + '</p>' +
+          mediaHtml +
+          '<div class="flex items-center gap-6 mt-5 py-3 border-y border-gray-100">' +
+            '<button onclick="window.__handleLikeInDetail(' + m.id + ')" style="' + likeColor + '" class="hover:scale-110 transition-transform text-sm font-medium">' + likeText + '</button>' +
+            '<span class="text-gray-400 text-sm">💬 ' + (m.comment_count || 0) + ' 条评论</span>' +
+          '</div>' +
+          '<div class="mt-5 space-y-3">' +
+            '<p class="text-sm font-semibold text-gray-800">评论</p>' +
+            '<div class="flex gap-2">' +
+              '<input id="comment-author" type="text" placeholder="昵称" maxlength="20" class="w-24 shrink-0 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0071e3] outline-none transition">' +
+              '<input id="comment-content" type="text" placeholder="写下你的评论..." maxlength="500" class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0071e3] outline-none transition">' +
+              '<button onclick="window.__submitComment(' + m.id + ')" class="px-4 py-2 bg-[#0071e3] text-white text-sm font-medium rounded-xl hover:opacity-90 transition shrink-0">发送</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-3 divide-y divide-gray-50">' + (commentsHtml || '<p class="text-gray-400 text-sm text-center py-8">暂无评论，来发表第一条吧</p>') + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+  }
+
+  function zoomMedia() {
+    if (!detailMemory || !detailMemory.media_data || detailMemory.media_type === 'video') return;
+    var overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-black/90 flex items-center justify-center z-[100] cursor-pointer';
+    overlay.style.cssText = 'animation:fadeIn 0.2s ease-out';
+    overlay.onclick = function() { overlay.remove(); };
+    var img = document.createElement('img');
+    img.src = detailMemory.media_data;
+    img.className = 'max-w-[95vw] max-h-[95vh] object-contain rounded-xl';
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+  }
+
+  // ===================== Actions =====================
+  function handleLike(id) {
+    toggleLike(id).then(function(liked) {
+      for (var i = 0; i < memories.length; i++) {
+        if (memories[i].id === id) {
+          memories[i]._liked = liked;
+          memories[i].like_count = Math.max(0, (memories[i].like_count || 0) + (liked ? 1 : -1));
+          break;
+        }
+      }
+      if (detailMemory && detailMemory.id === id) {
+        detailMemory._liked = liked;
+        detailMemory.like_count = Math.max(0, (detailMemory.like_count || 0) + (liked ? 1 : -1));
+      }
+      renderFeed();
+      if (activeDetailId === id) renderDetail();
+    }).catch(function() { showToast('操作失败', 'error'); });
+  }
+
+  function handleLikeInDetail(id) { handleLike(id); }
+
+  function submitComment(memoryId) {
+    var authorEl = $('#comment-author');
+    var contentEl = $('#comment-content');
+    if (!authorEl || !contentEl) return;
+    var author = authorEl.value.trim();
+    var content = contentEl.value.trim();
+    if (!author || !content) { showToast('请填写昵称和评论', 'error'); return; }
+    addComment(memoryId, author, content).then(function() {
+      authorEl.value = '';
+      contentEl.value = '';
+      return fetchComments(memoryId).then(function(comments) {
+        detailComments = comments;
+        for (var i = 0; i < memories.length; i++) {
+          if (memories[i].id === memoryId) { memories[i].comment_count = (memories[i].comment_count || 0) + 1; break; }
+        }
+        if (detailMemory && detailMemory.id === memoryId) detailMemory.comment_count = (detailMemory.comment_count || 0) + 1;
+        renderFeed();
+        renderDetail();
+        showToast('评论成功');
+      });
+    }).catch(function(e) { showToast('评论失败: ' + e.message, 'error'); });
+  }
+
+  function handleDeleteComment(commentId, memoryId) {
+    if (!confirm('删除这条评论？')) return;
+    deleteCommentById(commentId, memoryId).then(function() {
+      return fetchComments(memoryId);
+    }).then(function(comments) {
+      detailComments = comments;
+      for (var i = 0; i < memories.length; i++) {
+        if (memories[i].id === memoryId) { memories[i].comment_count = Math.max(0, (memories[i].comment_count || 0) - 1); break; }
+      }
+      if (detailMemory && detailMemory.id === memoryId) detailMemory.comment_count = Math.max(0, (detailMemory.comment_count || 0) - 1);
+      renderFeed();
+      renderDetail();
+    }).catch(function(e) { showToast('删除失败', 'error'); });
+  }
+
+  function handleDelete(id) {
+    if (!confirm('确定删除这条回忆？')) return;
+    deleteMemoryById(id).then(function() {
+      closeDetail();
+      return loadFeed();
+    }).then(function() { showToast('已删除'); })
+    .catch(function(e) { showToast('删除失败: ' + e.message, 'error'); });
+  }
+
+  function handleDeleteInDetail(id) {
+    handleDelete(id);
+  }
+
+  function handleEdit(id) {
+    var m = null;
+    for (var i = 0; i < memories.length; i++) { if (memories[i].id === id) { m = memories[i]; break; } }
+    if (!m) return;
+    var author = prompt('修改昵称：', m.author);
+    if (author === null) return;
+    var content = prompt('修改内容：', m.content);
+    if (content === null) return;
+    updateMemoryById(id, { author: author.trim() || m.author, content: content.trim() || m.content }).then(function() {
+      return loadFeed();
+    }).then(function() {
+      if (activeDetailId === id) {
+        var dm = null;
+        for (var i = 0; i < memories.length; i++) { if (memories[i].id === id) { dm = memories[i]; break; } }
+        if (dm) { detailMemory = dm; renderDetail(); }
+      }
+      showToast('已修改');
+    }).catch(function(e) { showToast('修改失败', 'error'); });
+  }
+
+  function handleEditInDetail(id) { handleEdit(id); }
+
+  // ===================== Upload =====================
+  function handleUpload(e) {
+    e.preventDefault();
+    var author = $('#upload-author').value.trim();
+    var content = $('#upload-content').value.trim();
+    if (!author || !content) { showToast('请填写昵称和内容', 'error'); return; }
+
+    var mediaType = 'image';
+    var mediaData = null;
+    var imgInput = $('#upload-image');
+    if (imgInput.files[0]) {
+      if (imgInput.files[0].size > 8 * 1024 * 1024) { showToast('图片不能超过 8MB', 'error'); return; }
+      mediaData = null;
+      return readFileAsDataURL(imgInput.files[0]).then(function(data) {
+        if (!data) { showToast('图片读取失败', 'error'); return Promise.reject(); }
+        return doUpload(author, content, 'image', data);
+      });
+    }
+
+    var videoUrl = $('#upload-video-url').value.trim();
+    if (videoUrl) {
+      var embed = embedUrl(videoUrl);
+      if (!embed) { showToast('视频链接格式不支持，请粘贴 YouTube/Bilibili 链接', 'error'); return Promise.resolve(); }
+      mediaType = 'video';
+      mediaData = embed;
+    }
+
+    return doUpload(author, content, mediaType, mediaData);
+  }
+
+  function doUpload(author, content, mediaType, mediaData) {
+    var btn = $('#upload-btn');
+    btn.disabled = true;
+    btn.textContent = '发布中...';
+    return createMemory(author, content, mediaType, mediaData).then(function() {
+      $('#upload-author').value = '';
+      $('#upload-content').value = '';
+      var imgInput = $('#upload-image');
+      if (imgInput) imgInput.value = '';
+      $('#upload-video-url').value = '';
+      $('#upload-preview').innerHTML = '';
+      showToast('发布成功！');
+      return loadFeed();
+    }).catch(function(e) {
+      showToast('发布失败: ' + e.message, 'error');
+    }).finally(function() {
+      btn.disabled = false;
+      btn.textContent = '发布';
+    });
+  }
+
+  function embedUrl(url) {
+    var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    if (m) return 'https://www.youtube.com/embed/' + m[1];
+    m = url.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);
+    if (m) return 'https://player.bilibili.com/player.html?bvid=' + m[1] + '&high_quality=1';
+    m = url.match(/(?:bilibili\.com\/video\/|b23\.tv\/)(BV[a-zA-Z0-9]+|av\d+)/);
+    if (m) return 'https://player.bilibili.com/player.html?bvid=' + m[1] + '&high_quality=1';
+    return null;
+  }
+
+  function readFileAsDataURL(file) {
+    return new Promise(function(resolve) {
+      var r = new FileReader();
+      r.onload = function() { resolve(r.result); };
+      r.onerror = function() { resolve(null); };
+      r.readAsDataURL(file);
+    });
+  }
+
+  function handleImagePreview(input) {
+    var p = $('#upload-preview');
+    if (!p || !input.files[0]) return;
+    var r = new FileReader();
+    r.onload = function() {
+      p.innerHTML = '<div class="relative inline-block mt-2"><img src="' + r.result + '" class="h-28 rounded-xl object-cover"><button type="button" onclick="window.__clearImage()" class="absolute -top-2 -right-2 w-6 h-6 bg-[#ff3b30] text-white rounded-full text-xs hover:opacity-80 transition">✕</button></div>';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+
+  function clearImage() {
+    var inp = $('#upload-image');
+    if (inp) inp.value = '';
+    var prev = $('#upload-preview');
+    if (prev) prev.innerHTML = '';
+  }
+
+  // ===================== Search & Sort =====================
+  var searchTimer;
+  function onSearchInput(e) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() {
+      loadFeed(1, currentSort, e.target.value);
+    }, 400);
+  }
+
+  function onSortChange(e) {
+    loadFeed(1, e.target.value, searchQuery);
+  }
+
+  // ===================== Admin Auth =====================
+  function handleAdminLogin(e) {
+    e.preventDefault();
+    var emailEl = $('#admin-email');
+    var pwEl = $('#admin-password');
+    if (!emailEl || !pwEl) return;
+    var email = emailEl.value.trim();
+    var pw = pwEl.value;
+    supabase.auth.signInWithPassword({ email: email, password: pw }).then(function(r) {
+      if (r.error) { showToast('登录失败: ' + r.error.message, 'error'); return; }
+      isAdmin = true;
+      closeAdminModal();
+      showToast('管理员登录成功');
+      renderHeader();
+      renderFeed();
+      if (activeDetailId) renderDetail();
+    });
+  }
+
+  function handleLogout() {
+    supabase.auth.signOut().then(function() {
+      isAdmin = false;
+      showToast('已退出');
+      renderHeader();
+      renderFeed();
+      if (activeDetailId) renderDetail();
+    });
+  }
+
+  function closeAdminModal() {
+    var el = $('#admin-modal');
+    if (el) el.remove();
+  }
+
+  function showAdminModal() {
+    var existing = $('#admin-modal');
+    if (existing) existing.remove();
+    var html = '<div id="admin-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop" style="background:rgba(0,0,0,0.4)" onclick="window.__closeAdminModal()">' +
+      '<div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 animate-scale-in" onclick="event.stopPropagation()">' +
+        '<h2 class="text-xl font-semibold text-gray-800 mb-6">管理员登录</h2>' +
+        '<form onsubmit="window.__handleAdminLogin(event)" class="space-y-4">' +
+          '<input id="admin-email" type="email" placeholder="邮箱" autofocus class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0071e3] outline-none text-sm">' +
+          '<input id="admin-password" type="password" placeholder="密码" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0071e3] outline-none text-sm">' +
+          '<div class="flex gap-3 pt-2">' +
+            '<button type="button" onclick="window.__closeAdminModal()" class="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-400 hover:bg-gray-50 transition">取消</button>' +
+            '<button type="submit" class="flex-1 py-2.5 bg-[#0071e3] text-white text-sm font-medium rounded-xl hover:opacity-90 transition">登录</button>' +
+          '</div>' +
+        '</form>' +
+      '</div>' +
+    '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    setTimeout(function() { var el = $('#admin-email'); if (el) el.focus(); }, 100);
+  }
+
+  // ===================== Header =====================
+  function renderHeader() {
+    var el = $('#header');
+    if (!el) return;
+    var searchVal = searchQuery || '';
+    var sortOps = [
+      { v: 'latest', t: '最新' },
+      { v: 'oldest', t: '最早' },
+      { v: 'most_liked', t: '最多赞' },
+      { v: 'most_commented', t: '最多评论' }
+    ];
+    var sortHtml = '';
+    for (var i = 0; i < sortOps.length; i++) {
+      sortHtml += '<option value="' + sortOps[i].v + '" ' + (currentSort === sortOps[i].v ? 'selected' : '') + '>' + sortOps[i].t + '</option>';
+    }
+
+    var adminHtml = isAdmin
+      ? '<div class="flex items-center gap-2 shrink-0"><span class="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">管理员</span><button onclick="window.__handleLogout()" class="text-xs text-[#0071e3] hover:underline">退出</button></div>'
+      : '<button onclick="window.__showAdminModal()" class="text-xs text-gray-400 hover:text-[#0071e3] transition shrink-0">登录</button>';
+
+    el.innerHTML = '<header style="background:rgba(255,255,255,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.06);position:sticky;top:0;z-index:40">' +
+      '<div class="max-w-5xl mx-auto px-5 py-4 flex items-center justify-between gap-4">' +
+        '<div class="flex items-center gap-2.5 shrink-0">' +
+          '<div class="w-9 h-9 rounded-full flex items-center justify-center text-lg" style="background:linear-gradient(135deg,#0071e3,#5856d6)">🎓</div>' +
+          '<h1 class="text-lg font-semibold text-gray-800 tracking-tight hidden sm:block">母校回忆录</h1>' +
+        '</div>' +
+        '<div class="flex-1 max-w-md"><input type="text" placeholder="搜索回忆..." value="' + escapeHtml(searchVal) + '" oninput="window.__onSearchInput(event)" class="w-full px-4 py-2 text-sm bg-gray-100 border-0 rounded-full focus:ring-2 focus:ring-[#0071e3] outline-none transition placeholder-gray-400"></div>' +
+        '<select onchange="window.__onSortChange(event)" class="text-sm px-3 py-2 bg-gray-100 border-0 rounded-full text-gray-700 outline-none focus:ring-2 focus:ring-[#0071e3] cursor-pointer shrink-0">' + sortHtml + '</select>' +
+        adminHtml +
+      '</div>' +
+    '</header>';
+  }
+
+  // ===================== Bootstrap =====================
+  function init() {
+    userFingerprint = getFP();
+
+    return supabase.auth.getSession().then(function(r) {
+      if (r.data && r.data.session) isAdmin = true;
+
+      supabase.auth.onAuthStateChange(function(event) {
+        if (event === 'SIGNED_OUT') { isAdmin = false; renderHeader(); renderFeed(); if (activeDetailId) renderDetail(); }
+      });
+
+      renderApp();
+      renderHeader();
+      return loadFeed();
+    });
+  }
+
+  function renderApp() {
+    document.getElementById('app').innerHTML =
+      '<div id="header"></div>' +
+      '<main class="max-w-5xl mx-auto px-5 py-6">' +
+        '<div class="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-gray-100/50">' +
+          '<h2 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2"><span class="text-lg">✍️</span> 分享你的母校回忆</h2>' +
+          '<form onsubmit="window.__handleUpload(event)" class="space-y-3">' +
+            '<input id="upload-author" type="text" maxlength="30" placeholder="你的昵称" class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0071e3] outline-none transition">' +
+            '<textarea id="upload-content" maxlength="2000" rows="3" placeholder="写下你的母校回忆..." class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0071e3] outline-none transition resize-none"></textarea>' +
+            '<div id="upload-preview"></div>' +
+            '<div class="flex flex-wrap items-center gap-3">' +
+              '<label class="flex items-center gap-2 px-4 py-2 text-sm border border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#0071e3] hover:text-[#0071e3] transition text-gray-400">📷 图片<input id="upload-image" type="file" accept="image/jpeg,image/png,image/gif,image/webp" onchange="window.__handleImagePreview(this)" class="hidden"></label>' +
+              '<input id="upload-video-url" type="text" placeholder="或粘贴视频链接 (YouTube/B站)" class="flex-1 min-w-[200px] px-4 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0071e3] outline-none transition">' +
+              '<button id="upload-btn" type="submit" class="px-5 py-2 bg-[#0071e3] text-white text-sm font-medium rounded-xl hover:opacity-90 transition">发布</button>' +
+            '</div>' +
+          '</form>' +
+        '</div>' +
+        '<div id="feed-section"><div id="feed-container"></div><div id="pagination"></div></div>' +
+      '</main>' +
+      '<footer class="text-center py-10 text-gray-400 text-xs">母校回忆录 — 献给每一位怀念青春的毕业生</footer>';
+  }
+
+  // ===================== Expose to global scope (for onclick handlers) =====================
+  window.__openDetail = openDetail;
+  window.__closeDetail = closeDetail;
+  window.__zoomMedia = zoomMedia;
+  window.__handleLike = handleLike;
+  window.__handleLikeInDetail = handleLikeInDetail;
+  window.__submitComment = submitComment;
+  window.__handleDeleteComment = handleDeleteComment;
+  window.__handleDelete = handleDelete;
+  window.__handleDeleteInDetail = handleDeleteInDetail;
+  window.__handleEdit = handleEdit;
+  window.__handleEditInDetail = handleEditInDetail;
+  window.__handleUpload = handleUpload;
+  window.__clearImage = clearImage;
+  window.__handleImagePreview = handleImagePreview;
+  window.__onSearchInput = onSearchInput;
+  window.__onSortChange = onSortChange;
+  window.__handleAdminLogin = handleAdminLogin;
+  window.__handleLogout = handleLogout;
+  window.__closeAdminModal = closeAdminModal;
+  window.__showAdminModal = showAdminModal;
+  window.__goToPage = function(p) {
+    window.scrollTo({ top: 100, behavior: 'smooth' });
+    loadFeed(p);
+  };
+
+  return init();
+}
+</script>
+</body>
+</html>
